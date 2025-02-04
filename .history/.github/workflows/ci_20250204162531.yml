@@ -19,4 +19,4 @@ jobs:
     # 실제로 실행될 작업 정의
     steps:
       - name: Print test word
-        run: echo 'test'
+        run: echo 'hello world'
