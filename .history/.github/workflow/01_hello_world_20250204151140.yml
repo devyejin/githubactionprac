@@ -1,0 +1,6 @@
+# workflow 이름
+name : Termial Output Workflow
+
+on:
+  push:
+    
