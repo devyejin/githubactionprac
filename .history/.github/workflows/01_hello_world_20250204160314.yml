@@ -25,10 +25,4 @@ jobs:
 
   #작업(job) 이름
   hello-secret:
-    # 해당 작업이 실행될 환경
-    runs-on: ubuntu-24.04
-    # 실제로 실행될 작업 내부 단계 정의
-    steps:
-      - name: Print secret key's value
-        # secrets.[시크릿이름]
-        run: echo '${{ secrets.SECRET_KEY }}'
+    
