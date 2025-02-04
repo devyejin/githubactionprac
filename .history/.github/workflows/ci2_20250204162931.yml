@@ -1,0 +1,10 @@
+name : CI Workflow
+
+on:
+  push:
+    branches:
+      - deploy/*
+    
+jobs:
+  print-test:
+  

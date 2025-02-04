@@ -1,0 +1,13 @@
+name : CI Workflow
+
+on:
+  push:
+    branches:
+      - deploy/*
+    
+jobs:
+  print-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Print test
+      
