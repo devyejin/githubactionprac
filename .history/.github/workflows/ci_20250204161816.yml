@@ -1,0 +1,17 @@
+# workflow 이름 정의
+name : Test Workflow
+
+# 워크플로우를 자동으로 실행할 이벤트 정의
+on:
+  #트리거
+  push:
+    # 실행 조건 브랜치 설정
+    branches:
+      - features/*
+
+#실행될 작업들을 정의
+jobs:
+  #작업 정의
+  #작업 이름
+  test-job:
+    # workflow 
