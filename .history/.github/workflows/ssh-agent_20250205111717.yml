@@ -45,8 +45,6 @@ jobs:
         # run: scp -P ${{secrets.SSH_PORT}} [복사할 파일 이름] ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:[복사 위치]
         run: scp -P ${{secrets.SSH_PORT}} Readme.md ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:~/
 
-      # default로 사용할 수 있는 ssh 명령방식은 한 줄씩만 가능하고 불편함
-      # scp-actions를 사용해서 원격 서버에 명령어를 쉽게 실행할 수 있다
       - name: Run remote command test
         uses: appleboy/ssh-action@v1.0.2
         with:
