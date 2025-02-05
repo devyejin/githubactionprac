@@ -29,8 +29,5 @@ jobs:
         # 내 repo에 등록해 놓은 키를 known_hosts (Guthub Actions Workspace에서 원격 서버들의 지문을 저장하는 공간) 에다가 저장
         run: ssh-keyscan -H ${{secrets.SSH_HOST}} >> ~/.ssh/known_hosts || true
       
-      # ssh 연결을 하겠어
-      # 연결 후 하나의 명령어를 전달하는 것도 가능 tocuh 부분 
       - name: create file on remote server
-        run: ssh -p ${{secrets.SSH_PORT}} ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}} "touch 'hello-world.txt"
-      
+        run: ssh

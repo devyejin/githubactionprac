@@ -34,3 +34,4 @@ jobs:
       - name: create file on remote server
         run: ssh -p ${{secrets.SSH_PORT}} ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}} "touch 'hello-world.txt"
       
+      # EC2에서 실행할 명령어를 작성 (ssh 연결 후)
