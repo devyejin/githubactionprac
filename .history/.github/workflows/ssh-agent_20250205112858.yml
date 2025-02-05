@@ -76,13 +76,13 @@ jobs:
             mkdir 'work-directory'
             cd 'work-directory'
             touch 'hello-world.txt'
-
+      
       # 오후에 할 것
-      # 도커 이미지를 다운받아서, 그 이미지를 기반으로 컨테이너를 생성하는것을 workspace에게 맡김
+      
 
       # scp-actions를 사용해서 복사해보자
       # Secure Copy Protocol을 사용해서 파일을 원격 서버에 복사하기 위한 도구
-      - name: Copy Readme.md file
+      - name: Copy README.md file
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{secrets.SSH_HOST}}
@@ -90,6 +90,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{secrets.SSH_PORT}}
           #복사할 파일 이름, 여러개의 파일을 복사할 때는 , 로 파일 이름을 구분한다
-          source: "Readme.md"
+          source: "README.md"
           # EC2의 사용자 홈 디렉터리로 옮기겠다
           target: "~/"
