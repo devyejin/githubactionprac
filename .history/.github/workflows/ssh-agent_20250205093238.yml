@@ -1,0 +1,7 @@
+# workflow 이름
+name : ssh
+
+# 워크플로우를 자동으로 실행할 이벤트를 정의
+on:
+  push:
+  

@@ -1,0 +1,14 @@
+# workflow 이름
+name : ssh
+
+# 워크플로우를 자동으로 실행할 이벤트를 정의
+on:
+  # main 브랜치에 push라는 이벤트가 발생할 때 작업을 실행하겠다
+  push:
+    branches:
+      -main
+
+#실행될 작업들을 정의
+jobs:
+  ssh-agent:
+    runs-on:ubuntu-24.04

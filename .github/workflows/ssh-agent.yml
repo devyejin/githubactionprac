@@ -1,0 +1,26 @@
+# workflow 이름
+name : ssh
+
+# 워크플로우를 자동으로 실행할 이벤트를 정의
+on:
+  # main 브랜치에 push라는 이벤트가 발생할 때 작업을 실행하겠다
+  push:
+    branches:
+      -main
+
+#실행될 작업들을 정의
+jobs:
+  #작업 이름
+  ssh-agent:
+    # 작업이 발생될 Guthub Workspace 실행 환경
+    runs-on:ubuntu-24.04
+
+    #실제로 실행될 작업 내부 단계
+    steps:
+      - name : run ssh-agnet
+        # action 사용법은 해당 뭄ㄴ서를 참고하며 사용해야 함
+        # 이 라이브러리(?)를 개발한 사람이 규정한 문법이니 지켜야 함
+        # Make sure the @v0.9.0 matches the current version of the action
+      - uses: webfactory/ssh-agent@v0.9.0
+        with :
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
