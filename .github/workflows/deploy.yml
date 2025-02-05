@@ -57,3 +57,31 @@ jobs:
       # 빌드 -> 로그인 -> push
       - name: Docker Image Push
         run: docker compose push
+
+      # .env 와 docker-compose.yml 파일들을 ec2의 ~/work-directory로 복사한다, secure 이용해서
+      # why? ec2에서 이미지를 pull해와서 docker-compose up 하기위해 필요하니까
+      # 보안된 상태로 복사하는 작업이라 scp-action
+      - name: Copy .env 와 docker-compose.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.yml, .env"
+          target: "~/work-directory"
+      
+      # ssh 명령을 하는거라 ssh-action
+      - name: Pull Image & Up Container
+        name: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          # 실행할 명령어들을 작성
+          # multiple commandlines 인 경우 | 사용
+          script: |
+            cd ~/work-directory
+            docker-compose pull
+            docker-compose up -d
