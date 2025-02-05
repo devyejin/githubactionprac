@@ -78,7 +78,6 @@ jobs:
             touch 'hello-world.txt'
 
       # scp-actions를 사용해서 복사해보자
-      # Secure Copy Protocol을 사용해서 파일을 원격 서버에 복사하기 위한 도구
       - name: Copy README.md file
         uses: appleboy/scp-action@v0.1.7
         with:
