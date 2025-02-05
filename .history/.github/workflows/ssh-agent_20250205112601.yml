@@ -60,7 +60,7 @@ jobs:
             touch 'hello-world1.txt'
             touch 'hello-world2.txt'
             touch 'hello-world3.txt'
-
+      
       - name: Run remote command test2
         uses: appleboy/ssh-action@v1.0.2
         with:
@@ -73,19 +73,19 @@ jobs:
           # work-directory 폴더 생성
           # work-directory 경로 이동
           script: |
-            mkdir 'work-directory'
-            cd 'work-directory'
-            touch 'hello-world.txt'
+            mkdir work
+      
+
 
       # scp-actions를 사용해서 복사해보자
-      # - name: Copy README.md file
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{secrets.SSH_HOST}}
-      #     username: ${{ secrets.SSH_USERNAME}}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     port: ${{secrets.SSH_PORT}}
-      #     #복사할 파일 이름, 여러개의 파일을 복사할 때는 , 로 파일 이름을 구분한다
-      #     source: "README.md"
-      #     # EC2의 사용자 홈 디렉터리로 옮기겠다
-      #     target: "~/"
+      - name: Copy README.md file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{ secrets.SSH_USERNAME}}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{secrets.SSH_PORT}}
+          #복사할 파일 이름, 여러개의 파일을 복사할 때는 , 로 파일 이름을 구분한다
+          source: "README.md"
+          # EC2의 사용자 홈 디렉터리로 옮기겠다
+          target: "~/"
