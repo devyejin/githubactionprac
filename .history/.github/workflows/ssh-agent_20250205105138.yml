@@ -42,5 +42,4 @@ jobs:
       # Workspace에 있는 프로젝트를 EC2로 옮긴다.
       - name: copy file to remote server
         #scp에서 포트를 할당할 때만은 대문자 P를 사용, 소문자 p는 다른 의미
-        # run: scp -P ${{secrets.SSH_PORT}} [복사할 파일 이름] ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:[복사 위치]
-        run: scp -P ${{secrets.SSH_PORT}} Readme.md ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:~/
+        run: scp -P ${{secrets.SSH_PORT}} [ㅂ] ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}} 
