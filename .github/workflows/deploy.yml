@@ -1,0 +1,59 @@
+# workflow 이름
+name: deploy service
+
+# 워크플로우를 자동으로 실행할 이벤트를 정의
+on:
+  # main 브랜치에 push라는 이벤트가 발생할 때 작업을 실행하겠다
+  push:
+    branches:
+      - main
+
+#실행될 작업들을 정의
+jobs:
+  ssh-agent:
+    # 작업이 발생될 Guthub Workspace 실행 환경
+    runs-on: ubuntu-24.04
+
+    #실제로 실행될 작업 내부 단계
+    steps:
+      # 내 원격저장소(repo)에 있는 프로젝트를 Workspace로 가져온다
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ssh 관리를 쉽게 하기 위해 ssh-agent 를 사용
+      - name: run ssh-agnet
+        # action 사용법은 해당 문서를 참고하며 사용해야 함
+        # 이 라이브러리(?)를 개발한 사람이 규정한 문법이니 지켜야 함
+        # Make sure the @v0.9.0 matches the current version of the action
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Guthub Actions Workspace입장에서 EC2와의 FINGERPRINT 작업이 필요(믿을 수 있는 환경이니?)
+      - name: Add Remote Server Fingerprint to Known Hosts
+        # 내 repo에 등록해 놓은 키를 known_hosts (Guthub Actions Workspace에서 원격 서버들의 지문을 저장하는 공간) 에다가 저장
+        run: ssh-keyscan -H -p ${{secrets.SSH_PORT}} ${{secrets.SSH_HOST}} >> ~/.ssh/known_hosts || true
+
+      # 1. 환경변수 파일을 생성하고 내용을 작성한다
+      - name: Create .env file
+        run: |
+        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+        echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+        echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+        echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+      
+      # checkout 해온 프로젝트를 이미지로 빌드하겠다. (빌드할 때 환경변수가 필요할 수 있으므로 사전작업으로 생성)
+      - name: Docker Image Build
+        # 명령어 체계가 다르다 docker-compose 아님
+        run: Docker compose build
+
+      - name: Login DockerHub
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
+      
+      # 빌드 -> 로그인 -> push
+      - name: Docker Image Push
+        run: docker compose push
