@@ -37,15 +37,15 @@ jobs:
       # 1. 환경변수 파일을 생성하고 내용을 작성한다
       - name: Create .env file
         run: |
-        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
-        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
-        echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-        echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
-        echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
-      
+          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+          echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+
       # checkout 해온 프로젝트를 이미지로 빌드하겠다. (빌드할 때 환경변수가 필요할 수 있으므로 사전작업으로 생성)
       - name: Docker Image Build
         # 명령어 체계가 다르다 docker-compose 아님
@@ -53,7 +53,7 @@ jobs:
 
       - name: Login DockerHub
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
-      
+
       # 빌드 -> 로그인 -> push
       - name: Docker Image Push
         run: docker compose push
