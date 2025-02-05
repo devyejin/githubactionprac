@@ -70,7 +70,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           source: "docker-compose.yml, .env"
           target: "~/work-directory"
-      
+
       # ssh 명령을 하는거라 ssh-action
       - name: Pull Image & Up Container
         uses: appleboy/ssh-action@v1.0.3
