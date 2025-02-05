@@ -1,0 +1,36 @@
+# workflow 이름
+name: ssh
+
+# 워크플로우를 자동으로 실행할 이벤트를 정의
+on:
+  # main 브랜치에 push라는 이벤트가 발생할 때 작업을 실행하겠다
+  push:
+    branches:
+      - main
+
+#실행될 작업들을 정의
+jobs:
+  ssh-agent:
+    # 작업이 발생될 Guthub Workspace 실행 환경
+    runs-on: ubuntu-24.04
+
+    #실제로 실행될 작업 내부 단계
+    steps:
+      # ssh 관리를 쉽게 하기 위해 ssh-agent 를 사용
+      - name: run ssh-agnet
+        # action 사용법은 해당 문서를 참고하며 사용해야 함
+        # 이 라이브러리(?)를 개발한 사람이 규정한 문법이니 지켜야 함
+        # Make sure the @v0.9.0 matches the current version of the action
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Guthub Actions Workspace입장에서 EC2와의 FINGERPRINT 작업이 필요(믿을 수 있는 환경이니?)
+      - name: Add Remote Server Fingerprint to Known Hosts
+        # 내 repo에 등록해 놓은 키를 known_hosts (Guthub Actions Workspace에서 원격 서버들의 지문을 저장하는 공간) 에다가 저장
+        run: ssh-keyscan -H -p ${{secrets.SSH_PORT}} ${{secrets.SSH_HOST}} >> ~/.ssh/known_hosts || true
+
+      # ssh 연결을 하겠어
+      # 연결 후 하나의 명령어를 전달하는 것도 가능 tocuh 부분
+      - name: create file on remote server
+        run: ssh -p ${{secrets.SSH_PORT}} ${{ secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}} "touch 'hello-world.txt"
