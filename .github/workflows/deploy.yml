@@ -73,7 +73,7 @@ jobs:
       
       # ssh 명령을 하는거라 ssh-action
       - name: Pull Image & Up Container
-        name: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -84,4 +84,5 @@ jobs:
           script: |
             cd ~/work-directory
             docker-compose pull
+            docker-compose down
             docker-compose up -d
