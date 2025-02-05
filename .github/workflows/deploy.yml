@@ -49,7 +49,7 @@ jobs:
       # checkout 해온 프로젝트를 이미지로 빌드하겠다. (빌드할 때 환경변수가 필요할 수 있으므로 사전작업으로 생성)
       - name: Docker Image Build
         # 명령어 체계가 다르다 docker-compose 아님
-        run: Docker compose build
+        run: docker compose build
 
       - name: Login DockerHub
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
