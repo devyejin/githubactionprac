@@ -1,0 +1,67 @@
+services:
+  db:
+    container_name: db-container
+    image: mysql:8.0
+    volumes:
+      - db-volume:/var/lib/mysql
+    env_file:
+      - .env
+    networks:
+      - db-connect
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  backend:
+    container_name: backend-container
+    # build 블럭
+    # docker-compose에서의 build = image를 build한다 = dockerfile을 빌드
+    # 어떤 dockerfile을 사용할지, 경로 등을 설정하는 블럭
+    # -> 이미지 레이어 캐시에 대한 설정은 빌드 때 발생하는 것이므로 빌드 블럭에서 변경한다
+    build:
+      context: ./backend
+      # 1. 캐시 파일 저장 경로
+      cache_to:
+        # type 캐시의 종류(파일, 등..)
+        # src: 캐시를 불러올 경로(저장되어 있던 경로)
+        # mode: 캐시의 저장 방식 ( max : 최대한 많은 캐시 데이터를 저장, 다른 mode들 존재 )
+        - type=local,src=/tmp/.build-cache/backend,mode=max
+      # 2. 캐시를 불러올 경로
+      cache_from:
+        # 저장된 경로에서 불러오니까 경로는 동일
+        - type=local,src=/tmp/.build-cache/backend
+
+    image: yejinoh58/backend:latest
+    env_file:
+      - .env
+    networks:
+      - db-connect
+      - backend-connect
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    container_name: frontend-container
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    image: yejinoh58/frontend:latest
+    ports:
+      - "80:80"
+    networks:
+      - backend-connect
+    depends_on:
+      - backend
+      - db
+
+volumes:
+  db-volume:
+
+networks:
+  db-connect:
+  backend-connect:
