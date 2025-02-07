@@ -10,12 +10,17 @@ on:
 
 #실행될 작업들을 정의
 jobs:
-  ssh-agent:
+  # 작업 이름
+  deploy:
     # 작업이 발생될 Guthub Workspace 실행 환경
     runs-on: ubuntu-24.04
 
     #실제로 실행될 작업 내부 단계
     steps:
+      # 내 원격저장소(repo)에 있는 프로젝트를 Workspace로 가져온다
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       # 액션 시작 알림 메세지
       - name: Start Message
         uses: sarisia/actions-status-discord@v1
@@ -24,9 +29,15 @@ jobs:
           title: :"배포 시작"
           username: yejinoh58
 
-      # 내 원격저장소(repo)에 있는 프로젝트를 Workspace로 가져온다
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # 캐시 저장 설정을 위한 action(라이브러리)
+      - name: Cache Docker Image Layer
+        # actions/cache : 깃허브 캐시 저장소 활용을 위한 라이브러리
+        uses: actions/cache@4.2.0
+        with:
+          # docker-compose에서 정의해놓은 경로
+          path: /tmp/.build-cache
+          # workspace의 cache 저장공간에 다양한 cache가 저장되므로 식별하는 식별자
+          key: docker-image-layer-cache
 
       # ssh 관리를 쉽게 하기 위해 ssh-agent 를 사용
       - name: run ssh-agnet
@@ -54,17 +65,33 @@ jobs:
           echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
 
+      # 도커 Buildkit 엔진 설정 action(라이브러리)
+      - name: Set up Docker Buildx
+        # setup-buildx-action : 워크스페이스에 Buildkit 엔진을 설치하는 action(라이브러리)
+        # buildx = BuildKit
+        uses: docker/setup-buildx-action@v3
+
+      # BuildKit 엔진 빌더(이미지 빌드를 도와주는 도구) 생성 -
+      # -> 기존 도커 빌더 :  Cache 파일 저장&불러오기 경로를 개발자가 제어 불가 so, buildkit이 만든 빌더를 사용
+      - name: Create Buildkit Bulder
+        # 1. 빌더(buildkit)를 생성하는 명령어
+        # 2. 빌더(buildkit) 설정 명령어
+        run: |
+          docker buildx create --use --name buildkit
+          docker buildx use buildkit
+
       # checkout 해온 프로젝트를 이미지로 빌드하겠다. (빌드할 때 환경변수가 필요할 수 있으므로 사전작업으로 생성)
       - name: Docker Image Build
         # 명령어 체계가 다르다 docker-compose 아님
-        run: docker compose build
+        # 빌더가 변경되었으므로  파일명이 변경되어야 함
+        run: docker compose -f docker-compose-actions-cache.yml build --build-arg BUILDKIT_INLINE_CACHE=1
 
       - name: Login DockerHub
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
 
       # 빌드 -> 로그인 -> push
       - name: Docker Image Push
-        run: docker compose push
+        run: docker compose -f docker-compose-actions-cache.yml push
 
       # .env 와 docker-compose.yml 파일들을 ec2의 ~/work-directory로 복사한다, secure 이용해서
       # why? ec2에서 이미지를 pull해와서 docker-compose up 하기위해 필요하니까
@@ -76,7 +103,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "docker-compose.yml, .env"
+          source: "docker-compose-actions-cache.yml, .env"
           target: "~/work-directory"
 
       # ssh 명령을 하는거라 ssh-action
@@ -87,14 +114,13 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          # 실행할 명령어들을 작성
-          # multiple commandlines 인 경우 | 사용
+          # -f 옵션, default가 아닌 docker-compose.yml 파일명 명시할 때
           script: |
             cd ~/work-directory
-            docker-compose pull
-            docker-compose down
-            docker-compose up -d
-      
+            docker-compose -f docker-compose-actions-cache.yml  pull
+            docker-compose -f docker-compose-actions-cache.yml down
+            docker-compose -f docker-compose-actions-cache.yml up -d
+
       # Discord 알림 - 배포 성공
       - name: End Message - Success
         uses: sarisia/actions-status-discord@v1
@@ -102,7 +128,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: :"👍 배포 종료 - 성공"
-      
+
       # Discord 알림 - 배포 실패
       - name: End Message - failure
         uses: sarisia/actions-status-discord@v1
@@ -110,4 +136,3 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: :"❌ 배포 종료 -  실패"
-          
