@@ -37,7 +37,9 @@ jobs:
           # docker-compose에서 정의해놓은 경로
           path: /tmp/.build-cache
           # workspace의 cache 저장공간에 다양한 cache가 저장되므로 식별하는 식별자
-          key: docker-image-layer-cache
+          # 캐싱을 오버라이딩하는게 아니라 쌓이므로 별개의 이름을 지정해줘야 함
+          key: docker-image-layer-cache-${{ github.sha }}
+          restore-keys: docker-image-layer-cache
 
       # ssh 관리를 쉽게 하기 위해 ssh-agent 를 사용
       - name: run ssh-agnet
@@ -128,6 +130,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: :"👍 배포 종료 - 성공"
+          color: #7aa3f4
 
       # Discord 알림 - 배포 실패
       - name: End Message - failure
@@ -136,3 +139,4 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: :"❌ 배포 종료 -  실패"
+          color: #f697d2

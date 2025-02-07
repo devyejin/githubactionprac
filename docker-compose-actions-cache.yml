@@ -48,6 +48,12 @@ services:
     container_name: frontend-container
     build:
       context: ./frontend
+      #빌드시 어디다 저장할건데
+      cache_to:
+        - type=local,dest=/tmp/.build-cache/frontend,mode=max
+      #빌드시 어디서 불러올건데
+      cache_from:
+        - type=local,src=/tmp/.build-cache/frontend
       args:
         VITE_API_URL: ${VITE_API_URL}
     image: yejinoh58/frontend:latest
