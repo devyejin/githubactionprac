@@ -22,8 +22,6 @@ services:
     image: yejinoh58/backend:latest
     env_file:
       - .env
-    environment:
-      DATABASE_HOST: db
     networks:
       - db-connect
       - backend-connect
