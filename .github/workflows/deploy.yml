@@ -26,8 +26,7 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: :"배포 시작"
-          username: yejinoh58
+          title: : 🚀 "배포 시작"
 
       # 캐시 저장 설정을 위한 action(라이브러리)
       - name: Cache Docker Image Layer
@@ -75,12 +74,12 @@ jobs:
 
       # BuildKit 엔진 빌더(이미지 빌드를 도와주는 도구) 생성 -
       # -> 기존 도커 빌더 :  Cache 파일 저장&불러오기 경로를 개발자가 제어 불가 so, buildkit이 만든 빌더를 사용
-      - name: Create Buildkit Bulder
-        # 1. 빌더(buildkit)를 생성하는 명령어
-        # 2. 빌더(buildkit) 설정 명령어
-        run: |
-          docker buildx create --use --name buildkit
-          docker buildx use buildkit
+      # - name: Create Buildkit Bulder
+      #   # 1. 빌더(buildkit)를 생성하는 명령어
+      #   # 2. 빌더(buildkit) 설정 명령어
+      #   run: |
+      #     docker buildx create --use --name buildkit
+      #     docker buildx use buildkit
 
       # checkout 해온 프로젝트를 이미지로 빌드하겠다. (빌드할 때 환경변수가 필요할 수 있으므로 사전작업으로 생성)
       - name: Docker Image Build
@@ -130,7 +129,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: :"👍 배포 종료 - 성공"
-          color: #7aa3f4
+          color: 0x7aa3f4
 
       # Discord 알림 - 배포 실패
       - name: End Message - failure
@@ -139,4 +138,4 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: :"❌ 배포 종료 -  실패"
-          color: #f697d2
+          color: 0xf697d2
