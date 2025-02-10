@@ -2,8 +2,6 @@ pipeline {
     agent any
     
     environment {
-		    key = 'value' 
-		    API_KEY = credentials('api_key') 
     }
 
     stages {
@@ -16,7 +14,6 @@ pipeline {
         stage('Test'){
 		        steps{
 				        echo '애플리케이션 테스트'
-				        echo 'key is ${key}'
 		        }
         }
     }
@@ -36,5 +33,5 @@ pipeline {
     }
 
 
-    
+
 }
