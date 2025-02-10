@@ -80,6 +80,7 @@ pipeline {
                             webhookURL: "$discord_webhook"
                 }
             }
+            
             failure {
                 withCredentials([string(credentialsId: 'discord-webhook', variable: 'discord_webhook')]) {
                             discordSend description: """
