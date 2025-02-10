@@ -12,7 +12,7 @@ on:
 jobs:
   # 작업 이름
   deploy:
-    # 작업이 발생될 Guthub Workspace 실행 환경
+    # 작업이 발생될 Guthub Actions실행 환경(workspace)
     runs-on: ubuntu-24.04
 
     #실제로 실행될 작업 내부 단계
@@ -30,28 +30,29 @@ jobs:
 
       # 캐시 저장 설정을 위한 action(라이브러리)
       - name: Cache Docker Image Layer
-        # actions/cache : 깃허브 캐시 저장소 활용을 위한 라이브러리
+        # actions/cache :  GitHub Actions 캐시 저장소 활용을 위한 라이브러리
         uses: actions/cache@v4.2.0
         with:
-          # docker-compose에서 정의해놓은 경로
+          # cache가 저장될 경로를 정의 (docker-compose.yml에서) 
+          #build 될 때 해당 경로를 사용하면 이미지 레이어 캐시를 사용할 수 있음)
           path: /tmp/.build-cache
-          # workspace의 cache 저장공간에 다양한 cache가 저장되므로 식별하는 식별자
-          # 캐싱을 오버라이딩하는게 아니라 쌓이므로 별개의 이름을 지정해줘야 함
+          # Github Actions cache 저장공간에 다양한 cache가 저장되므로 식별자 필요
+          # 캐싱을 오버라이딩하는 것이 아니라, 새로운 캐시를 추가하므로 별개의 이름을 지정해야 함
+          # uuid와 같은 값을 붙임
           key: docker-image-layer-cache-${{ github.sha }}
           restore-keys: docker-image-layer-cache
 
       # ssh 관리를 쉽게 하기 위해 ssh-agent 를 사용
       - name: run ssh-agnet
-        # action 사용법은 해당 문서를 참고하며 사용해야 함
-        # 이 라이브러리(?)를 개발한 사람이 규정한 문법이니 지켜야 함
-        # Make sure the @v0.9.0 matches the current version of the action
+        #SSH Agent를 실행해 private key를 사용해서 원격 서버와 연결
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Guthub Actions Workspace입장에서 EC2와의 FINGERPRINT 작업이 필요(믿을 수 있는 환경이니?)
+      # Guthub Actions Workspace입장에서 EC2와의 FINGERPRINT 작업이 필요(믿을 수 있는 환경인지 확인)
       - name: Add Remote Server Fingerprint to Known Hosts
-        # 내 repo에 등록해 놓은 키를 known_hosts (Guthub Actions Workspace에서 원격 서버들의 지문을 저장하는 공간) 에다가 저장
+        # 내 repo에 등록해 놓은 키를 known_hosts에 추가하여 원격 서버와의 신뢰 관계를 맺는다
+        # 만약 false라면 이후 작업 수행 x
         run: ssh-keyscan -H -p ${{secrets.SSH_PORT}} ${{secrets.SSH_HOST}} >> ~/.ssh/known_hosts || true
 
       # 1. 환경변수 파일을 생성하고 내용을 작성한다
@@ -66,25 +67,29 @@ jobs:
           echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
 
-      # 도커 Buildkit 엔진 설정 action(라이브러리)
+      # Docker BuildKit 엔진 설정 action(라이브러리)
       - name: Set up Docker Buildx
         # setup-buildx-action : 워크스페이스에 Buildkit 엔진을 설치하는 action(라이브러리)
         # buildx = BuildKit
         uses: docker/setup-buildx-action@v3
 
-      # BuildKit 엔진 빌더(이미지 빌드를 도와주는 도구) 생성 -
+      # BuildKit 엔진 빌더(이미지 빌드를 도와주는 도구) 생성
       # -> 기존 도커 빌더 :  Cache 파일 저장&불러오기 경로를 개발자가 제어 불가 so, buildkit이 만든 빌더를 사용
-      # - name: Create Buildkit Bulder
-      #   # 1. 빌더(buildkit)를 생성하는 명령어
-      #   # 2. 빌더(buildkit) 설정 명령어
-      #   run: |
-      #     docker buildx create --use --name buildkit
-      #     docker buildx use buildkit
+      - name: Create Buildkit Bulder
+        # 1. 빌더(buildkit)를 생성하는 명령어
+        # 2. 빌더(buildkit) 설정 명령어
+        run: |
+          docker buildx create --use --name buildkit
+          docker buildx use buildkit
 
       # checkout 해온 프로젝트를 이미지로 빌드하겠다. (빌드할 때 환경변수가 필요할 수 있으므로 사전작업으로 생성)
       - name: Docker Image Build
-        # 명령어 체계가 다르다 docker-compose 아님
-        # 빌더가 변경되었으므로  파일명이 변경되어야 함
+        # workspace에서의 명령어 체계가 다르다 docker-compose 대신 docker compose 사용 (BuildKit 엔진 도입 전)
+        # 빌더가 변경되었으므로  --build-arg BUILDKIT_INLINE_CACHE=1 옵션 필요
+        # docker-compose.yml 파일이 변경되었으므로 default 사용시에는 명시하지 않지만 이제 -f 옵션과 파일명 기재해줘야 함
+        # 빌드시, BUILDKIT_INLINE_CACHE=1 인자를 넘겨줌으로 써 buildkit을 사용하여 빌드 캐시를 활성화
+        # 캐시된 레이어를 효과적으로 재사용하도록 설정
+        # 0으로 설정시, 캐시 기능을 비활성화하고 매번 새로 빌드
         run: docker compose -f docker-compose-actions-cache.yml build --build-arg BUILDKIT_INLINE_CACHE=1
 
       - name: Login DockerHub
@@ -107,7 +112,7 @@ jobs:
           source: "docker-compose-actions-cache.yml, .env"
           target: "~/work-directory"
 
-      # ssh 명령을 하는거라 ssh-action
+      # ssh 명령어를 통해 원격 서버에서 Docker Compose를 실행
       - name: Pull Image & Up Container
         uses: appleboy/ssh-action@v1.0.3
         with:
