@@ -79,6 +79,7 @@ pipeline {
           }
       }
       
+      
       failure {
             withCredentials([string(credentialsId: 'discord-webhook', variable: 'discord_webhook')]) {
                         discordSend description: """
