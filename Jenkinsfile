@@ -20,7 +20,7 @@ pipeline {
                     Jenkins Build Start
                     """,
                     link: env.BUILD_URL, 
-                    title: "${env.JOB_NAME} : ${currentBuild.displayName} 시작", 
+                    title: "🚀 ${env.JOB_NAME} : ${currentBuild.displayName} 시작 ", 
                     webhookURL: "$discord_webhook"
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
                       실행 시간 : ${currentBuild.duration / 1000}s
                       """,
                       link: env.BUILD_URL, result: currentBuild.currentResult, 
-                      title: "${env.JOB_NAME} : ${currentBuild.displayName} 성공", 
+                      title: "🎇 ${env.JOB_NAME} : ${currentBuild.displayName} 성공", 
                       webhookURL: "$discord_webhook"
           }
       }
@@ -88,7 +88,7 @@ pipeline {
                         실행 시간 : ${currentBuild.duration / 1000}s
                         """,
                         link: env.BUILD_URL, result: currentBuild.currentResult, 
-                        title: "${env.JOB_NAME} : ${currentBuild.displayName} 실패", 
+                        title: " ❌ ${env.JOB_NAME} : ${currentBuild.displayName} 실패", 
                         webhookURL: "$discord_webhook"
             }
       }
