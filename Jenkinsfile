@@ -30,6 +30,8 @@ pipeline {
           steps {
             script {
               sh 'docker compose build'
+              //상황에 따라 내렸다가 올려야 하는 경우가 존재하므로
+              sh 'docker compose down'
               sh 'docker compose up -d'
             }
           }
