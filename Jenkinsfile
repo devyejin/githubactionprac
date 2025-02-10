@@ -18,7 +18,7 @@ pipeline {
     
     post {
 		    always {
-				    echo '항상 실행된다.'
+				    echo '항상 실행된다.1'
 		    }
 		    
 		    success {
