@@ -26,7 +26,7 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: : 🚀 "배포 시작"
+          title: "🚀 배포 시작"
 
       # 캐시 저장 설정을 위한 action(라이브러리)
       - name: Cache Docker Image Layer
