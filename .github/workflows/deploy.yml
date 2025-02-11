@@ -33,7 +33,7 @@ jobs:
         # actions/cache :  GitHub Actions 캐시 저장소 활용을 위한 라이브러리
         uses: actions/cache@v4.2.0
         with:
-          # cache가 저장될 경로를 정의 (docker-compose.yml에서) 
+          # cache가 저장될 경로를 정의 (docker-compose.yml에서)
           #build 될 때 해당 경로를 사용하면 이미지 레이어 캐시를 사용할 수 있음)
           path: /tmp/.build-cache
           # Github Actions cache 저장공간에 다양한 cache가 저장되므로 식별자 필요
@@ -126,7 +126,6 @@ jobs:
             docker-compose -f docker-compose-actions-cache.yml  pull
             docker-compose -f docker-compose-actions-cache.yml down
             docker-compose -f docker-compose-actions-cache.yml up -d
-            docker image prune -f
 
       # Discord 알림 - 배포 성공
       - name: End Message - Success
