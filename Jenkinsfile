@@ -59,6 +59,15 @@ pipeline {
             }
           }
         }
+
+        stage('Docker Prev Image Delete') {
+          steps {
+            script {
+              //기존 이미지 삭제
+              sh 'docker image prune -f'
+            }
+          }
+        }
     }
     
     post {
