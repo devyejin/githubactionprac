@@ -126,6 +126,7 @@ jobs:
             docker-compose -f docker-compose-actions-cache.yml  pull
             docker-compose -f docker-compose-actions-cache.yml down
             docker-compose -f docker-compose-actions-cache.yml up -d
+            docker image prune -f
 
       # Discord 알림 - 배포 성공
       - name: End Message - Success
